@@ -106,7 +106,7 @@ def apply_preset(name):
 
 PRESET_HELP = {
     "Standardfall": "Ohne Rutschen (α=0,50, ε=0,10, 500 Episoden) reproduziert dieses Setting Sutton & Bartos klassisches Cliff-Walking-Beispiel: SARSA lernt eine sichere Route weit von der Klippe, Q-Learning die riskante direkte Route entlang der Klippe - und bekommt dafür während des Trainings spürbar weniger Ertrag.",
-    "Mit Rutsch-Risiko": "Rutschen 0,10: die Umgebung selbst ist jetzt schon riskant. SARSAs Vorteil dreht sich teilweise um - es stürzt zwar weiterhin seltener ab, der Umweg kostet aber mehr Schritte, als die vermiedenen Stürze einsparen.",
+    "Mit Rutsch-Risiko": "Rutschen 0,10: die Umgebung selbst ist jetzt schon riskant. SARSAs Vorteil dreht sich teilweise um - im Mittel über 20 Seeds stürzt es zwar weiterhin seltener ab (93 gegen 126 Abstürze; im hier gezeigten Lauf mit Seed 0 nicht: 109 gegen 101), der Umweg kostet aber mehr Schritte, als die vermiedenen Stürze einsparen.",
     "Kaum Exploration": "ε=0,01: kaum Unterschied zwischen SARSA und Q-Learning - mit wenig Exploration ist das Risiko durch die eigene Verhaltenspolitik gering, der Kontrast verschwindet fast.",
     "Stark explorativ": "ε=0,30: der Unterschied wird extrem - Q-Learnings riskante Route in Kombination mit sehr viel zufälligem Verhalten führt zu deutlich mehr Abstürzen als bei SARSA.",
     "Niedrige Lernrate": "α=0,05: beide Verfahren lernen langsamer, der qualitative Unterschied (SARSA sicherer, Q-Learning direkter) bleibt aber erhalten.",
