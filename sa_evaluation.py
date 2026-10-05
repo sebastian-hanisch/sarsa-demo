@@ -142,3 +142,15 @@ def slip_experiment(levels=None, seeds=None, base=None):
                 per_method[m]["falls"].append(metrics[m]["falls"])
         rows.append({"slip": slip, **{m: {"steady": _summary(per_method[m]["steady"]), "falls_mean": float(np.mean(per_method[m]["falls"]))} for m in C.METHODS}})
     return {"n_seeds": len(list(seeds)) if not isinstance(seeds, range) else len(seeds), "levels": tuple(levels), "rows": rows}
+
+
+def verdict_kind(steady_sarsa, steady_ql, falls_sarsa, falls_ql):
+    """Welche Aussage über SARSA gegen Q-Learning die Messwerte tragen: "both" (mehr Ertrag UND weniger Abstürze, der Sutton/Barto-Befund),
+    "safer_only" (weniger Abstürze, aber nicht mehr Ertrag), "return_only" (mehr Ertrag, aber nicht weniger Abstürze) oder "neither"."""
+    more_return = steady_sarsa > steady_ql
+    fewer_falls = falls_sarsa < falls_ql
+    if more_return and fewer_falls:
+        return "both"
+    if fewer_falls:
+        return "safer_only"
+    return "return_only" if more_return else "neither"

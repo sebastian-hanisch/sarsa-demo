@@ -12,7 +12,7 @@ import numpy as np
 import streamlit as st
 
 import sa_constants as C
-from sa_evaluation import Settings, alpha_experiment, analyse, epsilon_experiment, slip_experiment
+from sa_evaluation import Settings, alpha_experiment, analyse, epsilon_experiment, slip_experiment, verdict_kind
 from sa_grid import EAST
 from sa_presets import PRESET_HELP, PRESETS, apply_preset, bounds, init_session_state_defaults, load_permalink_settings, sync_query_params
 from sa_visualization import build_alpha, build_epsilon, build_falls, build_grid, build_learning_curves, build_slip
@@ -137,11 +137,17 @@ mcols[3].metric("SARSA: Abstürze insgesamt", a.total_falls["sarsa"], delta=a.to
 
 east_ql = _east_cells(grid, a.policy["qlearning"])
 east_sa = _east_cells(grid, a.policy["sarsa"])
-sarsa_better = a.steady["sarsa"] > a.steady["qlearning"]
-if sarsa_better:
+kind = verdict_kind(a.steady["sarsa"], a.steady["qlearning"], a.total_falls["sarsa"], a.total_falls["qlearning"])
+ret_txt = f"Ertrag {de(a.steady['sarsa'],1)} gegen {de(a.steady['qlearning'],1)}"
+fall_txt = f"Abstürze {a.total_falls['sarsa']} gegen {a.total_falls['qlearning']}"
+if kind == "both":
     st.success(f"✅ SARSA bekommt hier mehr Ertrag ({de(a.steady['sarsa'],1)} gegen {de(a.steady['qlearning'],1)}) UND stürzt seltener ab ({a.total_falls['sarsa']} gegen {a.total_falls['qlearning']}) - der klassische Sutton/Barto-Befund. SARSAs Policy hält sich in {east_sa} von {grid.cols-1} Zellen direkt an der Klippe an Osten, Q-Learnings Policy in {east_ql} von {grid.cols-1}.")
+elif kind == "safer_only":
+    st.warning(f"⚠️ SARSA stürzt zwar seltener ab ({a.total_falls['sarsa']} gegen {a.total_falls['qlearning']}), bekommt aber **nicht mehr** Ertrag ({de(a.steady['sarsa'],1)} gegen {de(a.steady['qlearning'],1)}) - der Umweg von der Klippe weg kostet hier mehr Schritte, als die vermiedenen Abstürze einsparen. Das ist KEIN Widerspruch zu Sutton & Barto, sondern ein Effekt des Rutschens (siehe Experiment 3): ohne Rutschen (Preset \"Standardfall\") kippt das Ergebnis zugunsten von SARSA.")
+elif kind == "return_only":
+    st.warning(f"⚠️ SARSA bekommt hier zwar mehr Ertrag ({de(a.steady['sarsa'],1)} gegen {de(a.steady['qlearning'],1)}), stürzt aber **nicht seltener** ab ({a.total_falls['sarsa']} gegen {a.total_falls['qlearning']}) - der Sicherheitsvorsprung ist bei dieser Einstellung nicht erkennbar (bei wenig Exploration oder Rutschen fällt der Unterschied klein aus; ein einzelner Seed streut, siehe die Experimente).")
 else:
-    st.warning(f"⚠️ SARSA stürzt zwar seltener ab ({a.total_falls['sarsa']} gegen {a.total_falls['qlearning']}), bekommt aber **weniger** Ertrag ({de(a.steady['sarsa'],1)} gegen {de(a.steady['qlearning'],1)}) - der Umweg von der Klippe weg kostet hier mehr Schritte, als die vermiedenen Abstürze einsparen. Das ist KEIN Widerspruch zu Sutton & Barto, sondern ein Effekt des Rutschens (siehe Experiment 3): ohne Rutschen (Preset \"Standardfall\") kippt das Ergebnis zugunsten von SARSA.")
+    st.warning(f"⚠️ Hier schneidet SARSA in beiden Größen nicht besser ab als Q-Learning ({ret_txt}; {fall_txt}) - bei wenig Exploration ist der Unterschied klein, bei starkem Rutschen kehrt er sich um (siehe Experiment 3); ein einzelner Seed streut.")
 g1, g2 = st.columns(2)
 with g1:
     st.markdown("##### Q-Learning: gelernte Policy")
