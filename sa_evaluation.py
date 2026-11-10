@@ -145,7 +145,7 @@ def slip_experiment(levels=None, seeds=None, base=None):
 
 
 def verdict_kind(steady_sarsa, steady_ql, falls_sarsa, falls_ql):
-    """Welche Aussage über SARSA gegen Q-Learning die Messwerte tragen: "both" (mehr Ertrag UND weniger Abstürze, der Sutton/Barto-Befund),
+    """Welche Aussage über SARSA gegen Q-Learning die Messwerte belegen: "both" (mehr Ertrag UND weniger Abstürze, der Sutton/Barto-Befund),
     "safer_only" (weniger Abstürze, aber nicht mehr Ertrag), "return_only" (mehr Ertrag, aber nicht weniger Abstürze) oder "neither"."""
     more_return = steady_sarsa > steady_ql
     fewer_falls = falls_sarsa < falls_ql
